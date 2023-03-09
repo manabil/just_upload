@@ -9,7 +9,10 @@ def get_error():
     errors = {}
     with open(argv[1], "r") as file:
         for i in file.readlines():
-            key = findall(r"[OR]: ([\w ]+)", i)[0].strip()
+            key = findall(r"[R] ([\w ']+)", i)
+            if not key:
+                continue
+            key = key[0].strip()
             if key not in errors:
                 errors[key] = 1
             else:
@@ -25,7 +28,7 @@ def get_username():
     with open(argv[1], "r") as file:
         for i in file.readlines():
             user = findall(r"\(([\w.]+)\)", i)[0].strip()
-            is_info = True if findall(r"(\w[A-Z]+):", i)[0].strip() == "INFO" else False
+            is_info = True if findall(r"(\w[A-Z]+)", i)[0].strip() == "INFO" else False
             if user not in users:
                 if is_info:
                     users[user] = {"info": 1, "error": 0}
@@ -40,14 +43,14 @@ def get_username():
     result = []
     for i in range(len(sorted_data)):
         result.append({"Username": sorted_data[i][0], "INFO": sorted_data[i][1]["info"], "ERROR": sorted_data[i][1]["error"]})
-    return result
+    return result[:8]
 
 def export_to_csv(path ,data, fieldname):
     with open(path, "w") as file:
         writer = DictWriter(file, fieldname)
         writer.writeheader()
         writer.writerows(data)
-    print(f"Export {path} has done successfully")
+    print("Export {} has been successfully".format(path))
 
 error = get_error()
 username = get_username()
